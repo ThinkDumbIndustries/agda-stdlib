@@ -38,6 +38,10 @@ isEquivalence = record
   ; trans = Composition.inverse
   }
 
+module _ {a b} where
+  open IsEquivalence (isEquivalence {a} {b}) public
+    using (refl; sym; trans)
+
 ------------------------------------------------------------------------
 -- Propositional bundles
 
@@ -49,8 +53,10 @@ isEquivalence = record
   ; trans = Composition.inverse
   }
 
-open module ↔ {ℓ} = IsEquivalence (↔-isEquivalence {ℓ}) using ()
-  renaming (refl to ↔-refl; sym to ↔-sym; trans to ↔-trans) public
+module _ {ℓ} where
+  open IsEquivalence (↔-isEquivalence {ℓ}) public
+    using ()
+    renaming (refl to ↔-refl; sym to ↔-sym; trans to ↔-trans)
 
 ------------------------------------------------------------------------
 -- Conversion functions
@@ -61,6 +67,13 @@ Inverse⇒Injection {S = S} I = record
   ; cong = to-cong
   ; injective = inverseʳ⇒injective S {f⁻¹ = from} from-cong inverseʳ
   } where open Inverse I
+
+Inverse⇒Surjection : Inverse S T → Surjection S T
+Inverse⇒Surjection {S = S} {T = T} I = record
+  { to = to
+  ; cong = to-cong
+  ; surjective = inverseˡ⇒surjective (_≈_ S) (_≈_ T) inverseˡ
+  } where open Inverse I; open Setoid
 
 Inverse⇒Bijection : Inverse S T → Bijection S T
 Inverse⇒Bijection {S = S} I = record
@@ -79,6 +92,9 @@ Inverse⇒Equivalence I = record
 
 ↔⇒↣ : A ↔ B → A ↣ B
 ↔⇒↣ = Inverse⇒Injection
+
+↔⇒↠ : A ↔ B → A ↠ B
+↔⇒↠ = Inverse⇒Surjection
 
 ↔⇒⤖ : A ↔ B → A ⤖ B
 ↔⇒⤖ = Inverse⇒Bijection

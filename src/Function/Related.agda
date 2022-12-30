@@ -17,6 +17,7 @@ open import Function.Injection   as Inj     using (Injection; _↣_)
 open import Function.Inverse     as Inv     using (Inverse; _↔_)
 open import Function.LeftInverse as LeftInv using (LeftInverse)
 open import Function.Surjection  as Surj    using (Surjection)
+import Function.Bundles as New
 open import Relation.Binary
 open import Relation.Binary.PropositionalEquality as P using (_≡_)
 open import Data.Product using (_,_; proj₁; proj₂; <_,_>)
@@ -65,6 +66,15 @@ record _↢_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
 
 open _↢_ public
 
+-- Temporary alternative for new function hierarchy. This will
+-- become the main definition before release of v2.0
+
+record _↢′_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
+  constructor lam
+  field app-↢′ : B New.↣ A
+
+open _↢′_ public
+
 ------------------------------------------------------------------------
 -- Relatedness
 
@@ -84,6 +94,20 @@ A ∼[ reverse-injection   ] B = A ↢ B
 A ∼[ left-inverse        ] B = LeftInverse (P.setoid A) (P.setoid B)
 A ∼[ surjection          ] B = Surjection  (P.setoid A) (P.setoid B)
 A ∼[ bijection           ] B = Inverse     (P.setoid A) (P.setoid B)
+
+-- Temporary alternative for new function hierarchy. This will
+-- become the main definition before release of v2.0
+infix 4 _∼[_]′_
+
+_∼[_]′_ : ∀ {ℓ₁ ℓ₂} → Set ℓ₁ → Kind → Set ℓ₂ → Set _
+A ∼[ implication         ]′ B = A → B
+A ∼[ reverse-implication ]′ B = A ← B
+A ∼[ equivalence         ]′ B = New.Equivalence (P.setoid A) (P.setoid B)
+A ∼[ injection           ]′ B = New.Injection   (P.setoid A) (P.setoid B)
+A ∼[ reverse-injection   ]′ B = A ↢′ B
+A ∼[ left-inverse        ]′ B = New.LeftInverse (P.setoid A) (P.setoid B)
+A ∼[ surjection          ]′ B = New.Surjection  (P.setoid A) (P.setoid B)
+A ∼[ bijection           ]′ B = New.Inverse     (P.setoid A) (P.setoid B)
 
 toRelated : {K : Kind} → A R.∼[ K ] B → A ∼[ K ] B
 toRelated {K = implication}         rel = B.Func.to rel

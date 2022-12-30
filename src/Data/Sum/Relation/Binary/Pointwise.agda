@@ -12,8 +12,8 @@ open import Data.Product using (_,_)
 open import Data.Sum.Base as Sum hiding (map)
 open import Data.Sum.Properties
 open import Level using (Level; _⊔_)
-open import Function.Base using (_∘_; id)
-open import Function.Inverse using (Inverse)
+open import Function.Base using (const; _∘_; id)
+open import Function.Bundles using (Inverse; mk↔)
 open import Relation.Nullary
 import Relation.Nullary.Decidable as Dec
 open import Relation.Binary
@@ -204,13 +204,12 @@ Pointwise-≡⇒≡ (inj₂ x) = P.cong inj₂ x
 ≡⇒Pointwise-≡ P.refl = ⊎-refl P.refl P.refl
 
 Pointwise-≡↔≡ : (A : Set a) (B : Set b) →
-                Inverse (P.setoid A ⊎ₛ P.setoid B)
-                        (P.setoid (A ⊎ B))
+                 Inverse (P.setoid A ⊎ₛ P.setoid B) (P.setoid (A ⊎ B))
 Pointwise-≡↔≡ _ _ = record
-  { to         = record { _⟨$⟩_ = id; cong = Pointwise-≡⇒≡ }
-  ; from       = record { _⟨$⟩_ = id; cong = ≡⇒Pointwise-≡ }
-  ; inverse-of = record
-    { left-inverse-of  = λ _ → ⊎-refl P.refl P.refl
-    ; right-inverse-of = λ _ → P.refl
-    }
+  { to        = id
+  ; from      = id
+  ; to-cong   = Pointwise-≡⇒≡
+  ; from-cong = ≡⇒Pointwise-≡
+  ; inverse   = (\x → P.refl) ,
+                (\x → ⊎-refl P.refl P.refl)
   }
