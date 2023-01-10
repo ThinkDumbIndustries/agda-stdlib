@@ -186,8 +186,11 @@ drop-inj₂ (inj₂ x) = x
   { isPartialOrder =
       ⊎-isPartialOrder (isPartialOrder po₁) (isPartialOrder po₂)
   } where open Poset
+  
+------------------------------------------------------------------------
+-- Additional notation
 
--- Some additional notation for combining setoids
+-- Infix combining setoids
 infix 4 _⊎ₛ_
 _⊎ₛ_ : Setoid a b → Setoid c d → Setoid _ _
 _⊎ₛ_ = ⊎-setoid

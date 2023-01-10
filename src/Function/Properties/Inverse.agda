@@ -12,8 +12,8 @@ module Function.Properties.Inverse where
 open import Axiom.Extensionality.Propositional using (Extensionality)
 open import Data.Product using (_,_; proj₁; proj₂)
 open import Function.Bundles
-open import Level using (Level)
-open import Relation.Binary using (Setoid; IsEquivalence)
+open import Level using (Level; _⊔_)
+open import Relation.Binary using (REL; Setoid; IsEquivalence)
 open import Relation.Binary.PropositionalEquality as P using (setoid)
 import Relation.Binary.Reasoning.Setoid as SetoidReasoning
 open import Function.Consequences
@@ -26,21 +26,21 @@ private
   variable
     a b ℓ ℓ₁ ℓ₂ : Level
     A B C D : Set a
-    S T : Setoid a ℓ
+    S T U V : Setoid a ℓ
 
 ------------------------------------------------------------------------
 -- Setoid bundles
 
+open Identity    public using () renaming (inverse to refl)
+open Symmetry    public using () renaming (inverse to sym)
+open Composition public using () renaming (inverse to trans)
+
 isEquivalence : IsEquivalence (Inverse {a} {b})
 isEquivalence = record
   { refl  = λ {x} → Identity.inverse x
-  ; sym   = Symmetry.inverse
-  ; trans = Composition.inverse
+  ; sym   = sym
+  ; trans = trans
   }
-
-module _ {a b} where
-  open IsEquivalence (isEquivalence {a} {b}) public
-    using (refl; sym; trans)
 
 ------------------------------------------------------------------------
 -- Propositional bundles
@@ -60,6 +60,14 @@ module _ {ℓ} where
 
 ------------------------------------------------------------------------
 -- Conversion functions
+  
+toFunction : Inverse S T → Func S T
+toFunction I = record { to = to ; cong = to-cong }
+  where open Inverse I
+
+fromFunction : Inverse S T → Func T S
+fromFunction I = record { to = from ; cong = from-cong }
+  where open Inverse I
 
 Inverse⇒Injection : Inverse S T → Injection S T
 Inverse⇒Injection {S = S} I = record
@@ -101,6 +109,19 @@ Inverse⇒Equivalence I = record
 
 ↔⇒⇔ : A ↔ B → A ⇔ B
 ↔⇒⇔ = Inverse⇒Equivalence
+
+-- The functions above can be combined with the following lemma to
+-- transport an arbitrary relation R (e.g. Injection) across
+-- inverses.
+transportVia : {R : ∀ {a b ℓ₁ ℓ₂} → REL (Setoid a ℓ₁) (Setoid b ℓ₂) (a ⊔ b ⊔ ℓ₁ ⊔ ℓ₂)} →
+               (∀ {a b c ℓ₁ ℓ₂ ℓ₃} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} {U : Setoid c ℓ₃} → R S T → R T U → R S U) →
+               (∀ {a b ℓ₁ ℓ₂} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} → Inverse S T → R S T) →
+               Inverse S T → R T U → Inverse U V → R S V 
+transportVia R-trans inv⇒R IBA RBC ICD =
+  R-trans (inv⇒R IBA) (R-trans RBC (inv⇒R ICD))
+
+------------------------------------------------------------------------
+-- Other
 
 module _ (ext : ∀ {a b} → Extensionality a b) where
 

@@ -66,15 +66,6 @@ record _↢_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
 
 open _↢_ public
 
--- Temporary alternative for new function hierarchy. This will
--- become the main definition before release of v2.0
-
-record _↢′_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
-  constructor lam
-  field app-↢′ : B New.↣ A
-
-open _↢′_ public
-
 ------------------------------------------------------------------------
 -- Relatedness
 
@@ -95,19 +86,10 @@ A ∼[ left-inverse        ] B = LeftInverse (P.setoid A) (P.setoid B)
 A ∼[ surjection          ] B = Surjection  (P.setoid A) (P.setoid B)
 A ∼[ bijection           ] B = Inverse     (P.setoid A) (P.setoid B)
 
--- Temporary alternative for new function hierarchy. This will
--- become the main definition before release of v2.0
-infix 4 _∼[_]′_
+-- A non-infix synonym.
 
-_∼[_]′_ : ∀ {ℓ₁ ℓ₂} → Set ℓ₁ → Kind → Set ℓ₂ → Set _
-A ∼[ implication         ]′ B = A → B
-A ∼[ reverse-implication ]′ B = A ← B
-A ∼[ equivalence         ]′ B = New.Equivalence (P.setoid A) (P.setoid B)
-A ∼[ injection           ]′ B = New.Injection   (P.setoid A) (P.setoid B)
-A ∼[ reverse-injection   ]′ B = A ↢′ B
-A ∼[ left-inverse        ]′ B = New.LeftInverse (P.setoid A) (P.setoid B)
-A ∼[ surjection          ]′ B = New.Surjection  (P.setoid A) (P.setoid B)
-A ∼[ bijection           ]′ B = New.Inverse     (P.setoid A) (P.setoid B)
+Related : Kind → ∀ {ℓ₁ ℓ₂} → Set ℓ₁ → Set ℓ₂ → Set _
+Related k A B = A ∼[ k ] B
 
 toRelated : {K : Kind} → A R.∼[ K ] B → A ∼[ K ] B
 toRelated {K = implication}         rel = B.Func.to rel
@@ -136,11 +118,6 @@ fromRelated {K = bijection}           record { to = to ; from = from ; inverse-o
 ... | record { left-inverse-of = left-inverse-of ; right-inverse-of = right-inverse-of } = B.mk⤖
   ((λ {x y} h → P.subst₂ P._≡_ (left-inverse-of x) (left-inverse-of y) (P.cong (from ⟨$⟩_) h)) ,
   < from ⟨$⟩_ , right-inverse-of >)
-
--- A non-infix synonym.
-
-Related : Kind → ∀ {ℓ₁ ℓ₂} → Set ℓ₁ → Set ℓ₂ → Set _
-Related k A B = A ∼[ k ] B
 
 -- The bijective equality implies any kind of relatedness.
 

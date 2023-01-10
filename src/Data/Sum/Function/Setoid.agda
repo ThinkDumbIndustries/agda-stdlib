@@ -44,8 +44,8 @@ swapₛ = [ inj₂ₛ , inj₁ₛ ]ₛ
 ------------------------------------------------------------------------
 -- Function bundles
 
-_⊎-⟶_ : Func A B → Func C D → Func (A ⊎ₛ C) (B ⊎ₛ D)
-A→B ⊎-⟶ C→D = record
+_⊎-function_ : Func A B → Func C D → Func (A ⊎ₛ C) (B ⊎ₛ D)
+A→B ⊎-function C→D = record
   { to    = Sum.map (to A→B) (to C→D)
   ; cong  = Pointwise.map (cong A→B) (cong C→D)
   } where open Func
@@ -86,9 +86,9 @@ A↠B ⊎-surjection C↠D = record
                         Prod.map inj₂ inj₂ ∘ surjective C↠D ]
   } where open Surjection
 
-_⊎-left-inverse_ : LeftInverse A B → LeftInverse C D →
-                   LeftInverse (A ⊎ₛ C) (B ⊎ₛ D)
-A↩B ⊎-left-inverse C↩D = record
+_⊎-leftInverse_ : LeftInverse A B → LeftInverse C D →
+                  LeftInverse (A ⊎ₛ C) (B ⊎ₛ D)
+A↩B ⊎-leftInverse C↩D = record
   { to              = Sum.map (to A↩B) (to C↩D)
   ; from            = Sum.map (from A↩B) (from C↩D)
   ; to-cong         = Pointwise.map (to-cong A↩B) (to-cong C↩D)
@@ -96,9 +96,9 @@ A↩B ⊎-left-inverse C↩D = record
   ; inverseˡ        = [ inj₁ ∘ inverseˡ A↩B , inj₂ ∘ inverseˡ C↩D ]
   } where open LeftInverse
 
-_⊎-right-inverse_ : RightInverse A B → RightInverse C D →
-                    RightInverse (A ⊎ₛ C) (B ⊎ₛ D)
-A↪B ⊎-right-inverse C↪D = record
+_⊎-rightInverse_ : RightInverse A B → RightInverse C D →
+                   RightInverse (A ⊎ₛ C) (B ⊎ₛ D)
+A↪B ⊎-rightInverse C↪D = record
   { to              = Sum.map (to A↪B) (to C↪D)
   ; from            = Sum.map (from A↪B) (from C↪D)
   ; to-cong         = Pointwise.map (to-cong A↪B) (to-cong C↪D)
@@ -116,3 +116,19 @@ A↔B ⊎-inverse C↔D = record
   ; inverse   = [ inj₁ ∘ inverseˡ A↔B , inj₂ ∘ inverseˡ C↔D ] ,
                 [ inj₁ ∘ inverseʳ A↔B , inj₂ ∘ inverseʳ C↔D ]
   } where open Inverse
+
+
+
+------------------------------------------------------------------------
+-- DEPRECATED NAMES
+------------------------------------------------------------------------
+-- Please use the new names as continuing support for the old names is
+-- not guaranteed.
+
+-- Version 2.0
+
+_⊎-left-inverse_ = _⊎-leftInverse_
+{-# WARNING_ON_USAGE _⊎-left-inverse_
+"Warning: _⊎-left-inverse_ was deprecated in v2.0.
+Please use _⊎-leftInverse_ instead."
+#-}
