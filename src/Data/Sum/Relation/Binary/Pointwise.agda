@@ -25,7 +25,7 @@ private
     A B C D : Set a
     R S T U : REL A B ℓ₁
     ≈₁ ≈₂ : Rel A ℓ₁
-    
+
 ----------------------------------------------------------------------
 -- Definition
 
@@ -186,7 +186,7 @@ drop-inj₂ (inj₂ x) = x
   { isPartialOrder =
       ⊎-isPartialOrder (isPartialOrder po₁) (isPartialOrder po₂)
   } where open Poset
-  
+
 ------------------------------------------------------------------------
 -- Additional notation
 

@@ -34,15 +34,15 @@ private
                    (∀ {a b ℓ₁ ℓ₂} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} → Inverse S T → R S T) →
                    (R (setoid A) (setoid C) → R (setoid B) (setoid D) → R (setoid A ×ₛ setoid B) (setoid C ×ₛ setoid D)) →
                    R (setoid A) (setoid C) → R (setoid B) (setoid D) →
-                   R (setoid (A × B)) (setoid (C × D)) 
+                   R (setoid (A × B)) (setoid (C × D))
   liftViaInverse trans inv⇒R lift RAC RBD =
     Inv.transportVia trans inv⇒R (Inv.sym Pointwise-≡↔≡) (lift RAC RBD) Pointwise-≡↔≡
-  
+
 ------------------------------------------------------------------------
 -- Combinators for various function types
 
 _×-⟶_ : A ⟶ B → C ⟶ D → (A × C) ⟶ (B × D)
-_×-⟶_ = liftViaInverse Compose.function Inv.toFunc _×-function_
+_×-⟶_ = liftViaInverse Compose.function Inv.toFunction _×-function_
 
 _×-⇔_ : A ⇔ B → C ⇔ D → (A × C) ⇔ (B × D)
 _×-⇔_ = liftViaInverse Compose.equivalence Inverse⇒Equivalence _×-equivalence_
@@ -73,4 +73,4 @@ _×-cong_ {k = injection}           = _×-↣_
 _×-cong_ {k = reverseInjection}    = _×-↣_
 _×-cong_ {k = leftInverse}         = _×-↪_
 _×-cong_ {k = surjection}          = _×-↠_
-_×-cong_ {k = bijection}           = _×-⤖_
+_×-cong_ {k = bijection}           = _×-↔_

@@ -12,25 +12,30 @@ open import Data.Product.Base as Prod using (_,_)
 open import Data.Sum.Base as Sum
 open import Data.Sum.Relation.Binary.Pointwise as Pointwise
 open import Relation.Binary
-open import Function
+open import Function.Base
+open import Function.Bundles
+open import Function.Definitions hiding (Surjective)
+open import Function.Definitions.Core2
 open import Level
 
 private
   variable
     a₁ a₂ b₁ b₂ c₁ c₂ d₁ d₂ : Level
     a ℓ : Level
-    A B C D : Setoid a ℓ
+    A B C D : Set a
+    ≈₁ ≈₂ ≈₃ ≈₄ : Rel A ℓ
+    S T U V : Setoid a ℓ
 
 ------------------------------------------------------------------------
 -- Combinators for equality preserving functions
 
-inj₁ₛ : Func A (A ⊎ₛ B)
+inj₁ₛ : Func S (S ⊎ₛ T)
 inj₁ₛ = record { to = inj₁ ; cong = inj₁ }
 
-inj₂ₛ : Func B (A ⊎ₛ B)
+inj₂ₛ : Func T (S ⊎ₛ T)
 inj₂ₛ = record { to = inj₂ ; cong = inj₂ }
 
-[_,_]ₛ : Func A C → Func B C → Func (A ⊎ₛ B) C
+[_,_]ₛ : Func S U → Func T U → Func (S ⊎ₛ T) U
 [ f , g ]ₛ = record
   { to   = [ to f , to g ]
   ; cong = λ where
@@ -38,83 +43,100 @@ inj₂ₛ = record { to = inj₂ ; cong = inj₂ }
     (inj₂ x∼₂y) → cong g x∼₂y
   } where open Func
 
-swapₛ : Func (A ⊎ₛ B) (B ⊎ₛ A)
+swapₛ : Func (S ⊎ₛ T) (T ⊎ₛ S)
 swapₛ = [ inj₂ₛ , inj₁ₛ ]ₛ
+
+------------------------------------------------------------------------
+-- Definitions
+
+⊎-injective : ∀ {f g} →
+              Injective ≈₁ ≈₂ f →
+              Injective ≈₃ ≈₄ g →
+              Injective (Pointwise ≈₁ ≈₃) (Pointwise ≈₂ ≈₄) (Sum.map f g)
+⊎-injective f-inj g-inj {inj₁ x} {inj₁ y} (inj₁ x∼₁y) = inj₁ (f-inj x∼₁y)
+⊎-injective f-inj g-inj {inj₂ x} {inj₂ y} (inj₂ x∼₂y) = inj₂ (g-inj x∼₂y)
+
+⊎-surjective : ∀ {f : A → B} {g : C → D} →
+              Surjective ≈₁ f →
+              Surjective ≈₂ g →
+              Surjective (Pointwise ≈₁ ≈₂) (Sum.map f g)
+⊎-surjective f-sur g-sur =
+  [ Prod.map inj₁ inj₁ ∘ f-sur
+  , Prod.map inj₂ inj₂ ∘ g-sur
+  ]
 
 ------------------------------------------------------------------------
 -- Function bundles
 
-_⊎-function_ : Func A B → Func C D → Func (A ⊎ₛ C) (B ⊎ₛ D)
-A→B ⊎-function C→D = record
-  { to    = Sum.map (to A→B) (to C→D)
-  ; cong  = Pointwise.map (cong A→B) (cong C→D)
+_⊎-function_ : Func S T → Func U V → Func (S ⊎ₛ U) (T ⊎ₛ V)
+S→T ⊎-function U→V = record
+  { to    = Sum.map (to S→T) (to U→V)
+  ; cong  = Pointwise.map (cong S→T) (cong U→V)
   } where open Func
 
-_⊎-equivalence_ : Equivalence A B → Equivalence C D →
-                  Equivalence (A ⊎ₛ C) (B ⊎ₛ D)
-A⇔B ⊎-equivalence C⇔D = record
-  { to        = Sum.map (to A⇔B) (to C⇔D)
-  ; from      = Sum.map (from A⇔B) (from C⇔D)
-  ; to-cong   = Pointwise.map (to-cong A⇔B) (to-cong C⇔D)
-  ; from-cong = Pointwise.map (from-cong A⇔B) (from-cong C⇔D)
+_⊎-equivalence_ : Equivalence S T → Equivalence U V →
+                  Equivalence (S ⊎ₛ U) (T ⊎ₛ V)
+S⇔T ⊎-equivalence U⇔V = record
+  { to        = Sum.map (to S⇔T) (to U⇔V)
+  ; from      = Sum.map (from S⇔T) (from U⇔V)
+  ; to-cong   = Pointwise.map (to-cong S⇔T) (to-cong U⇔V)
+  ; from-cong = Pointwise.map (from-cong S⇔T) (from-cong U⇔V)
   } where open Equivalence
 
-_⊎-injection_ : Injection A B → Injection C D →
-                Injection (A ⊎ₛ C) (B ⊎ₛ D)
-_⊎-injection_ {A = A} {B = B} {C = C} {D = D} A↣B C↣D = record
-  { to        = Sum.map (to A↣B) (to C↣D)
-  ; cong      = Pointwise.map (cong A↣B) (cong C↣D)
-  ; injective = inj
-  }
-  where
-  open Injection
-  open Setoid (A ⊎ₛ C) using () renaming (_≈_ to _≈AC_)
-  open Setoid (B ⊎ₛ D) using () renaming (_≈_ to _≈BD_)
+_⊎-injection_ : Injection S T → Injection U V →
+                Injection (S ⊎ₛ U) (T ⊎ₛ V)
+S↣T ⊎-injection U↣V = record
+  { to        = Sum.map (to S↣T) (to U↣V)
+  ; cong      = Pointwise.map (cong S↣T) (cong U↣V)
+  ; injective = ⊎-injective (injective S↣T) (injective U↣V)
+  } where open Injection
 
-  fg = Sum.map (to A↣B) (to C↣D)
-  
-  inj : Injective _≈AC_ _≈BD_ fg
-  inj {inj₁ x} {inj₁ y} (inj₁ x∼₁y) = inj₁ (injective A↣B x∼₁y)
-  inj {inj₂ x} {inj₂ y} (inj₂ x∼₂y) = inj₂ (injective C↣D x∼₂y)
-
-_⊎-surjection_ : Surjection A B → Surjection C D →
-                 Surjection (A ⊎ₛ C) (B ⊎ₛ D)
-A↠B ⊎-surjection C↠D = record
-  { to              = Sum.map (to A↠B) (to C↠D)
-  ; cong            = Pointwise.map (cong A↠B) (cong C↠D)
-  ; surjective      = [ Prod.map inj₁ inj₁ ∘ surjective A↠B ,
-                        Prod.map inj₂ inj₂ ∘ surjective C↠D ]
+_⊎-surjection_ : Surjection S T → Surjection U V →
+                 Surjection (S ⊎ₛ U) (T ⊎ₛ V)
+S↠T ⊎-surjection U↠V = record
+  { to              = Sum.map (to S↠T) (to U↠V)
+  ; cong            = Pointwise.map (cong S↠T) (cong U↠V)
+  ; surjective      = ⊎-surjective (surjective S↠T) (surjective U↠V)
   } where open Surjection
 
-_⊎-leftInverse_ : LeftInverse A B → LeftInverse C D →
-                  LeftInverse (A ⊎ₛ C) (B ⊎ₛ D)
-A↩B ⊎-leftInverse C↩D = record
-  { to              = Sum.map (to A↩B) (to C↩D)
-  ; from            = Sum.map (from A↩B) (from C↩D)
-  ; to-cong         = Pointwise.map (to-cong A↩B) (to-cong C↩D)
-  ; from-cong       = Pointwise.map (from-cong A↩B) (from-cong C↩D)
-  ; inverseˡ        = [ inj₁ ∘ inverseˡ A↩B , inj₂ ∘ inverseˡ C↩D ]
+_⊎-bijection_ : Bijection S T → Bijection U V →
+                 Bijection (S ⊎ₛ U) (T ⊎ₛ V)
+S⤖T ⊎-bijection U⤖V = record
+  { to        = Sum.map (to S⤖T) (to U⤖V)
+  ; cong      = Pointwise.map (cong S⤖T) (cong U⤖V)
+  ; bijective = ⊎-injective (injective S⤖T) (injective U⤖V) ,
+                ⊎-surjective (surjective S⤖T) (surjective U⤖V)
+  } where open Bijection
+
+_⊎-leftInverse_ : LeftInverse S T → LeftInverse U V →
+                  LeftInverse (S ⊎ₛ U) (T ⊎ₛ V)
+S↩T ⊎-leftInverse U↩V = record
+  { to              = Sum.map (to S↩T) (to U↩V)
+  ; from            = Sum.map (from S↩T) (from U↩V)
+  ; to-cong         = Pointwise.map (to-cong S↩T) (to-cong U↩V)
+  ; from-cong       = Pointwise.map (from-cong S↩T) (from-cong U↩V)
+  ; inverseˡ        = [ inj₁ ∘ inverseˡ S↩T , inj₂ ∘ inverseˡ U↩V ]
   } where open LeftInverse
 
-_⊎-rightInverse_ : RightInverse A B → RightInverse C D →
-                   RightInverse (A ⊎ₛ C) (B ⊎ₛ D)
-A↪B ⊎-rightInverse C↪D = record
-  { to              = Sum.map (to A↪B) (to C↪D)
-  ; from            = Sum.map (from A↪B) (from C↪D)
-  ; to-cong         = Pointwise.map (to-cong A↪B) (to-cong C↪D)
-  ; from-cong       = Pointwise.map (from-cong A↪B) (from-cong C↪D)
-  ; inverseʳ        = [ inj₁ ∘ inverseʳ A↪B , inj₂ ∘ inverseʳ C↪D ]
+_⊎-rightInverse_ : RightInverse S T → RightInverse U V →
+                   RightInverse (S ⊎ₛ U) (T ⊎ₛ V)
+S↪T ⊎-rightInverse U↪V = record
+  { to              = Sum.map (to S↪T) (to U↪V)
+  ; from            = Sum.map (from S↪T) (from U↪V)
+  ; to-cong         = Pointwise.map (to-cong S↪T) (to-cong U↪V)
+  ; from-cong       = Pointwise.map (from-cong S↪T) (from-cong U↪V)
+  ; inverseʳ        = [ inj₁ ∘ inverseʳ S↪T , inj₂ ∘ inverseʳ U↪V ]
   } where open RightInverse
-  
-_⊎-inverse_ : Inverse A B → Inverse C D →
-              Inverse (A ⊎ₛ C) (B ⊎ₛ D)
-A↔B ⊎-inverse C↔D = record
-  { to        = Sum.map (to A↔B) (to C↔D)
-  ; from      = Sum.map (from A↔B) (from C↔D)
-  ; to-cong   = Pointwise.map (to-cong A↔B) (to-cong C↔D)
-  ; from-cong = Pointwise.map (from-cong A↔B) (from-cong C↔D)
-  ; inverse   = [ inj₁ ∘ inverseˡ A↔B , inj₂ ∘ inverseˡ C↔D ] ,
-                [ inj₁ ∘ inverseʳ A↔B , inj₂ ∘ inverseʳ C↔D ]
+
+_⊎-inverse_ : Inverse S T → Inverse U V →
+              Inverse (S ⊎ₛ U) (T ⊎ₛ V)
+S↔T ⊎-inverse U↔V = record
+  { to        = Sum.map (to S↔T) (to U↔V)
+  ; from      = Sum.map (from S↔T) (from U↔V)
+  ; to-cong   = Pointwise.map (to-cong S↔T) (to-cong U↔V)
+  ; from-cong = Pointwise.map (from-cong S↔T) (from-cong U↔V)
+  ; inverse   = [ inj₁ ∘ inverseˡ S↔T , inj₂ ∘ inverseˡ U↔V ] ,
+                [ inj₁ ∘ inverseʳ S↔T , inj₂ ∘ inverseʳ U↔V ]
   } where open Inverse
 
 

@@ -101,7 +101,7 @@ f ×-rightInverse g = record
   ; from-cong = Prod.map (from-cong f) (from-cong g)
   ; inverseʳ   = λ x → inverseʳ f (proj₁ x) , inverseʳ g (proj₂ x)
   } where open RightInverse
-  
+
 _×-inverse_ : Inverse A B → Inverse C D →
               Inverse (A ×ₛ C) (B ×ₛ D)
 f ×-inverse g = record

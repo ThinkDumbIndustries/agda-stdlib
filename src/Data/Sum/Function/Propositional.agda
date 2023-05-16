@@ -34,7 +34,7 @@ private
                    (∀ {a b ℓ₁ ℓ₂} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} → Inverse S T → R S T) →
                    (R (setoid A) (setoid C) → R (setoid B) (setoid D) → R (setoid A ⊎ₛ setoid B) (setoid C ⊎ₛ setoid D)) →
                    R (setoid A) (setoid C) → R (setoid B) (setoid D) →
-                   R (setoid (A ⊎ B)) (setoid (C ⊎ D)) 
+                   R (setoid (A ⊎ B)) (setoid (C ⊎ D))
   liftViaInverse trans inv⇒R lift RAC RBD =
     Inv.transportVia trans inv⇒R (Inv.sym (Pointwise-≡↔≡ _ _)) (lift RAC RBD) (Pointwise-≡↔≡ _ _)
 
@@ -56,6 +56,12 @@ _⊎-↠_ = liftViaInverse Compose.surjection Inverse⇒Surjection _⊎-surjecti
 _⊎-↩_ : A ↩ B → C ↩ D → (A ⊎ C) ↩ (B ⊎ D)
 _⊎-↩_ = liftViaInverse Compose.leftInverse Inverse.leftInverse _⊎-leftInverse_
 
+_⊎-↪_ : A ↪ B → C ↪ D → (A ⊎ C) ↪ (B ⊎ D)
+_⊎-↪_ = liftViaInverse Compose.rightInverse Inverse.rightInverse _⊎-rightInverse_
+
+_⊎-⤖_ : A ⤖ B → C ⤖ D → (A ⊎ C) ⤖ (B ⊎ D)
+_⊎-⤖_ = liftViaInverse Compose.bijection Inverse⇒Bijection _⊎-bijection_
+
 _⊎-↔_ : A ↔ B → C ↔ D → (A ⊎ C) ↔ (B ⊎ D)
 _⊎-↔_ = liftViaInverse Compose.inverse id _⊎-inverse_
 
@@ -65,6 +71,6 @@ _⊎-cong_ {k = reverseImplication}  = _⊎-⟶_
 _⊎-cong_ {k = equivalence}         = _⊎-⇔_
 _⊎-cong_ {k = injection}           = _⊎-↣_
 _⊎-cong_ {k = reverseInjection}    = _⊎-↣_
-_⊎-cong_ {k = leftInverse}         = {!_⊎-↩_!} --_⊎-↩_
+_⊎-cong_ {k = leftInverse}         = _⊎-↪_
 _⊎-cong_ {k = surjection}          = _⊎-↠_
-_⊎-cong_ {k = bijection}           = {!!} --_⊎-↔_
+_⊎-cong_ {k = bijection}           = _⊎-↔_

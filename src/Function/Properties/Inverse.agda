@@ -60,7 +60,7 @@ module _ {ℓ} where
 
 ------------------------------------------------------------------------
 -- Conversion functions
-  
+
 toFunction : Inverse S T → Func S T
 toFunction I = record { to = to ; cong = to-cong }
   where open Inverse I
@@ -116,7 +116,7 @@ Inverse⇒Equivalence I = record
 transportVia : {R : ∀ {a b ℓ₁ ℓ₂} → REL (Setoid a ℓ₁) (Setoid b ℓ₂) (a ⊔ b ⊔ ℓ₁ ⊔ ℓ₂)} →
                (∀ {a b c ℓ₁ ℓ₂ ℓ₃} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} {U : Setoid c ℓ₃} → R S T → R T U → R S U) →
                (∀ {a b ℓ₁ ℓ₂} {S : Setoid a ℓ₁} {T : Setoid b ℓ₂} → Inverse S T → R S T) →
-               Inverse S T → R T U → Inverse U V → R S V 
+               Inverse S T → R T U → Inverse U V → R S V
 transportVia R-trans inv⇒R IBA RBC ICD =
   R-trans (inv⇒R IBA) (R-trans RBC (inv⇒R ICD))
 
